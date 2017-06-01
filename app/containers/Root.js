@@ -31,10 +31,7 @@ class CanvasComponent extends React.Component {
                   ctx.drawImage(img, 0, 0, img.width, img.height,
                     centerShift_x, centerShift_y, img.width * ratio, img.height * ratio);  
                 }
-                
         }
-        
-
     }
     componentDidMount() {
         this.updateCanvas();
