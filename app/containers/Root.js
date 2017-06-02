@@ -1,7 +1,6 @@
 import React, { Component, PropTypes } from 'react';
 import { Provider } from 'react-redux';
 import App from './App';
-
 class CanvasComponent extends React.Component {
 
   
@@ -30,7 +29,7 @@ class CanvasComponent extends React.Component {
                   ctx.clearRect(0, 0, canvas.width, canvas.height);
                   ctx.drawImage(img, 0, 0, img.width, img.height,
                     centerShift_x, centerShift_y, img.width * ratio, img.height * ratio);  
-                 context.drawImage(imageObj, sourceX, sourceY, sourceWidth, sourceHeight, destX, destY, destWidth, destHeight);
+                //  context.drawImage(imageObj, sourceX, sourceY, sourceWidth, sourceHeight, destX, destY, destWidth, destHeight);
 
                 }
         }
@@ -66,28 +65,34 @@ export default class Root extends Component {
   }
 
   componentDidMount() {
-  //   console.log('didmount')
-  //   chrome.runtime.onMessage.addListener(
-  //     (request, sender, sendResponse) => {
-  //      if (sender.tab) this.setState({ url: sender.tab.url, title: sender.tab.title })
-  //       console.log(sender.tab ?
-  //         "from a content script:" + sender.tab.url :
-  //         "from the extension");
-  //       // this.setState({message: request.greeting})            
-  //       if (request.greeting == "hello")
-  //         sendResponse({ farewell: "goodbye" });
-  //     });
-  
-  chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
+    console.log('mounted')
+    chrome.runtime.onMessage.addListener(
+      (request, sender, sendResponse) => {
+      //  if (sender.tab) this.setState({ url: sender.tab.url, title: sender.tab.title })
+      console.log('request', request)
+        switch(request.type) {
+          case 'dragSelect': sendResponse('got it');
+          case 'parentWindow': sendResponse('parent window')
+        }
+      });
+
+    chrome.tabs.query({active: true, highlighted: true}, (tabs) => {
     this.setState({title: tabs[0].title, url: tabs[0].url})
-    chrome.tabs.sendMessage(tabs[0].id, {greeting: "hello"}, (response) => {
-      console.log('root / popup response',response);
-    });
-  });  
-  chrome.tabs.captureVisibleTab(null, {format: "png"}, (data) => {
-    console.log('png')
+    console.log('tab', tabs[0])
+    chrome.tabs.captureVisibleTab(tabs[0].windowId, {format: "png"}, (data) => {
+      console.log('png')
       this.setState({img: data})
    })
+
+
+    chrome.tabs.sendMessage(tabs[0].id, {greeting: "hello"}, (response) => {
+    });
+  });  
+
+  
+
+
+  
 
 }
 

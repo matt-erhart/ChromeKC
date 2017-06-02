@@ -12,12 +12,12 @@ class InjectApp extends Component {
 
 
   componentDidMount() {
+    let body = document.getElementsByTagName("body")[0];
     const keyUp$ = Rx.Observable.fromEvent(document, 'keyup').filter(key=>key.altKey).map(key=>key.key);
-    const altS$ = keyUp$.filter(key => key === 's').do(x=>console.log('key',x))
+    const altS$ = keyUp$.filter(key => key === 's').do(x=> body.style.cursor = 'crosshair')
     const mouseDown$ = Rx.Observable.fromEvent(document, 'mousedown')
     const mouseUp$ = Rx.Observable.fromEvent(document,   'mouseup')
     const mouseMove$ = Rx.Observable.fromEvent(document, 'mousemove')
-    let body = document.getElementsByTagName("body")[0];
 
     const dragSelect$ = mouseDown$.take(1).mergeMap(downData => {
       this.setState({dragSelect: {x: null, y: null, width: null, height: null}})
@@ -26,21 +26,25 @@ class InjectApp extends Component {
             const {offsetX, offsetY, clientX, clientY} = downData;
             const w = (moveData.clientX-clientX); //dragging right positive
             const h = ( moveData.clientY-clientY); //dragging down positive
-
             const x = w < 0? clientX + w: clientX; 
             const y = h < 0? clientY + h: clientY;
             const width = Math.abs(w);
             const height = Math.abs(h);
             const dragSelect = {x, y, width, height}
-            if (width+height > 8) {
                 body.style.userSelect = 'none'
                 this.setState({dragSelect})
                 this.setState({display: 'block'})
                 console.log(dragSelect)
-            }
-        }).finally(moveData => {body.style.userSelect='auto'; this.setState({display: 'none'}); console.log('finally',moveData)})
-    })
+        }).finally(moveData => {
+          body.style.userSelect='auto'; 
+          body.style.cursor = 'default'
+          this.setState({display: 'none'}); 
 
+          chrome.runtime.sendMessage({type: 'dragSelect', dragSelect: this.state.dragSelect}, function(response) {
+          console.log('message response:', response);
+          });
+        })
+    })
     Rx.Observable.concat(altS$.take(1), dragSelect$ ).repeat().subscribe()
   }
 

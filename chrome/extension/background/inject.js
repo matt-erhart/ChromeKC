@@ -33,8 +33,8 @@ function loadScript(name, tabId, cb) {
 
 chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
   if (changeInfo.status !== 'loading') return;
-
   const result = await isInjected(tabId);
+  if (result === undefined) return;
   if (chrome.runtime.lastError || result[0]) return;
 
   loadScript('inject', tabId, () => console.log('load inject bundle success!'));

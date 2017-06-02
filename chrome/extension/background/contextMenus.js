@@ -15,14 +15,21 @@ function popWindow(type) {
     left: 100,
     top: 100,
     width: 800,
-    height: 475,
-  };
-  if (type === 'open') {
-    options.url = 'window.html';
-    chrome.windows.create(options, (win) => {
-      windowId = win.id;
-    });
-  }
+    height: 475  };
+  chrome.tabs.query({ currentWindow: true, active: true }, function (tabs) {
+    if (type === 'open') {
+      options.url = 'popup.html';
+
+      chrome.windows.create(options, (win) => {
+        windowId = win.id;
+        console.log('made window')
+        chrome.runtime.sendMessage({type: 'parentWindow'}, resp => {
+            console.log('response in bg',resp)
+          });
+      });
+    }
+  });
+  
 }
 
 chrome.contextMenus.create({
