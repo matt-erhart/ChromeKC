@@ -1,4 +1,6 @@
 function isInjected(tabId) {
+  console.log(1, tabId)
+
   return chrome.tabs.executeScriptAsync(tabId, {
     code: `var injected = window.reactExampleInjected;
       window.reactExampleInjected = true;
@@ -17,14 +19,15 @@ function loadScript(name, tabId, cb) {
     .then((fetchRes) => {
       // Load redux-devtools-extension inject bundle,
       // because inject script and page is in a different context
-      const request = new XMLHttpRequest();
-      request.open('GET', 'chrome-extension://lmhkpmbekcpmknklioeibfkpmmfibljd/js/redux-devtools-extension.js');  // sync
-      request.send();
-      request.onload = () => {
-        if (request.readyState === XMLHttpRequest.DONE && request.status === 200) {
-          chrome.tabs.executeScript(tabId, { code: request.responseText, runAt: 'document_start' });
-        }
-      };
+      // const request = new XMLHttpRequest();
+      // request.open('GET', 'chrome-extension://lmhkpmbekcpmknklioeibfkpmmfibljd/js/redux-devtools-extension.js');  // sync
+      // request.send();
+      // request.onload = () => {
+      //   if (request.readyState === XMLHttpRequest.DONE && request.status === 200) {
+      //     chrome.tabs.executeScript(tabId, { code: request.responseText, runAt: 'document_start' });
+      //   }
+      // };
+      console.log(2)
       chrome.tabs.executeScript(tabId, { code: fetchRes, runAt: 'document_end' }, cb);
     });
   }
@@ -33,6 +36,8 @@ function loadScript(name, tabId, cb) {
 
 chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
   if (changeInfo.status !== 'loading') return;
+  console.log(tabId, changeInfo, tab)
+  if (tab.url.startsWith("chrome-extension://")) return;
   const result = await isInjected(tabId);
   if (result === undefined) return;
   if (chrome.runtime.lastError || result[0]) return;

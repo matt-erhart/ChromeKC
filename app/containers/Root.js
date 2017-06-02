@@ -18,8 +18,6 @@ class CanvasComponent extends React.Component {
                   var height = img.height;
                   var width = img.width;
                   console.log(img.width, img.height)
-                  // ctx.drawImage(img, 0, 0, img.width,    img.height,     // source rectangle
-                  //  0, 0, 500, 300);
                   var canvas = ctx.canvas ;
                   var hRatio = canvas.width / img.width;
                   var vRatio = canvas.height / img.height;
@@ -30,7 +28,6 @@ class CanvasComponent extends React.Component {
                   ctx.drawImage(img, 0, 0, img.width, img.height,
                     centerShift_x, centerShift_y, img.width * ratio, img.height * ratio);  
                 //  context.drawImage(imageObj, sourceX, sourceY, sourceWidth, sourceHeight, destX, destY, destWidth, destHeight);
-
                 }
         }
     }

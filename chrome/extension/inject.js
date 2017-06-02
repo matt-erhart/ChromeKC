@@ -37,7 +37,7 @@ class InjectApp extends Component {
                 console.log(dragSelect)
         }).finally(moveData => {
           body.style.userSelect='auto'; 
-          body.style.cursor = 'default'
+          body.style.cursor = 'auto'
           this.setState({display: 'none'}); 
 
           chrome.runtime.sendMessage({type: 'dragSelect', dragSelect: this.state.dragSelect}, function(response) {

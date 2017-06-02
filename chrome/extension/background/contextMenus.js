@@ -8,7 +8,7 @@ function closeIfExist() {
   }
 }
 
-function popWindow(type) {
+function popWindow(type, selectedText) {
   closeIfExist();
   const options = {
     type: 'popup',
@@ -23,7 +23,7 @@ function popWindow(type) {
       chrome.windows.create(options, (win) => {
         windowId = win.id;
         console.log('made window')
-        chrome.runtime.sendMessage({type: 'parentWindow'}, resp => {
+        chrome.runtime.sendMessage({type: 'parentWindow', selectedText}, resp => {
             console.log('response in bg',resp)
           });
       });
@@ -31,18 +31,40 @@ function popWindow(type) {
   });
   
 }
+// chrome.contextMenus.create({
+//   id: CONTEXT_MENU_ID,
+//   title: 'Knowledge Collider',
+//   contexts: ["all"],
+//   documentUrlPatterns: [
+//     'https://*/*', 'http://*/*', "<all_urls>"
+//   ],
+//   onclick: function () { popWindow('open') }
+// }, () => {
+//   const err = chrome.runtime.lastError;
+//   if (err) {
+//     console.warn('Context menu error ignored:', err);
+//   }
+// });
 
 chrome.contextMenus.create({
-  id: CONTEXT_MENU_ID,
-  title: 'Knowledge Collider',
-  contexts: ['all'],
+  id: 'selected text',
+  title: 'Create snippet from %s',
+  contexts: ["selection"],
   documentUrlPatterns: [
     'https://*/*', 'http://*/*', "<all_urls>"
-  ]
-});
-
-chrome.contextMenus.onClicked.addListener((event) => {
-  if (event.menuItemId === CONTEXT_MENU_ID) {
-    popWindow('open');
+  ],
+  onclick: function(info, tab) {
+    popWindow('open',info.selectionText);
+}
+}, () => {
+  const err = chrome.runtime.lastError;
+  if (err) {
+    console.warn('Context menu error ignored:', err);
   }
 });
+
+// chrome.contextMenus.onClicked.addListener((event) => {
+//   if (event.menuItemId === CONTEXT_MENU_ID) {
+//     popWindow('open');
+//   }
+// });
