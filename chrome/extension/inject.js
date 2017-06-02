@@ -12,12 +12,14 @@ class InjectApp extends Component {
 
 
   componentDidMount() {
+    const keyUp$ = Rx.Observable.fromEvent(document, 'keyup').filter(key=>key.altKey).map(key=>key.key);
+    const altS$ = keyUp$.filter(key => key === 's').do(x=>console.log('key',x))
     const mouseDown$ = Rx.Observable.fromEvent(document, 'mousedown')
     const mouseUp$ = Rx.Observable.fromEvent(document,   'mouseup')
     const mouseMove$ = Rx.Observable.fromEvent(document, 'mousemove')
     let body = document.getElementsByTagName("body")[0];
 
-    const dragSelect$ = mouseDown$.mergeMap(downData => {
+    const dragSelect$ = mouseDown$.take(1).mergeMap(downData => {
       this.setState({dragSelect: {x: null, y: null, width: null, height: null}})
       return mouseMove$.takeUntil(mouseUp$)
         .do(moveData => {
@@ -37,14 +39,18 @@ class InjectApp extends Component {
                 console.log(dragSelect)
             }
         }).finally(moveData => {body.style.userSelect='auto'; this.setState({display: 'none'}); console.log('finally',moveData)})
-    }).subscribe()
+    })
+
+    Rx.Observable.concat(altS$.take(1), dragSelect$ ).repeat().subscribe()
   }
 
   render() {
     const {x,y,width,height} = this.state.dragSelect;
     let element = null;
     if (this.state.display === 'block'){
-       element =  <svg style={{position: 'fixed', left: 0, top:0, z: 1, display: this.state.display }} x={0} y={0} width={window.innerWidth} height={window.innerHeight} ><rect stroke={'black'} x={x} y={y} width={width} height={height} fill={'none'}></rect></svg>
+       element =  <svg style={{position: 'fixed', left: 0, top:0, z: 1, display: this.state.display }} x={0} y={0} width={window.innerWidth} height={window.innerHeight} >
+         <rect stroke={'black'} x={x} y={y} width={width} height={height} fill={'none'}></rect>
+         </svg>
     } 
     return element;
   }

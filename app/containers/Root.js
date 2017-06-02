@@ -30,6 +30,8 @@ class CanvasComponent extends React.Component {
                   ctx.clearRect(0, 0, canvas.width, canvas.height);
                   ctx.drawImage(img, 0, 0, img.width, img.height,
                     centerShift_x, centerShift_y, img.width * ratio, img.height * ratio);  
+                 context.drawImage(imageObj, sourceX, sourceY, sourceWidth, sourceHeight, destX, destY, destWidth, destHeight);
+
                 }
         }
     }
