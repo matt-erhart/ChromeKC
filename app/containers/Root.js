@@ -48,8 +48,6 @@ class CanvasComponent extends React.Component {
 
 export default class Root extends Component {
 
-  state = { message: 'asda' }
-
   // static propTypes = {
   //   store: PropTypes.object.isRequired
   // };
@@ -57,21 +55,21 @@ export default class Root extends Component {
     super(props);
     this.state = {
       url: '...',
-      title: '...'
+      title: '...',
+      snippet: ''
     };
   }
 
   componentDidMount() {
-    console.log('mounted')
-    chrome.runtime.onMessage.addListener(
-      (request, sender, sendResponse) => {
-      //  if (sender.tab) this.setState({ url: sender.tab.url, title: sender.tab.title })
-      console.log('request', request)
-        switch(request.type) {
-          case 'dragSelect': sendResponse('got it');
-          case 'parentWindow': sendResponse('parent window')
-        }
-      });
+    // console.log('window', window)
+    // console.log('mounted', this.state)
+    
+    // chrome.runtime.getBackgroundPage((bg) => {
+    //     console.log(bg)
+    //     this.setState({snippet: bg.text});
+    // });
+    this.setState({snippet: localStorage.selectedText || ''})
+    delete localStorage.selectedText
 
     chrome.tabs.query({active: true, highlighted: true}, (tabs) => {
     this.setState({title: tabs[0].title, url: tabs[0].url})
@@ -81,27 +79,21 @@ export default class Root extends Component {
       this.setState({img: data})
    })
 
-
-    chrome.tabs.sendMessage(tabs[0].id, {greeting: "hello"}, (response) => {
-    });
+    // chrome.tabs.sendMessage(tabs[0].id, {greeting: "hello"}, (response) => {
+    // });
   });  
-
-  
-
-
-  
-
 }
 
   render() {
     const { store } = this.props;
+
     return (
       <div>
         <CanvasComponent img={this.state.img}></CanvasComponent>
         <div>{this.state.title}</div>
         <div>{this.state.url}</div>
         <textarea name="" id="" cols="60" rows="10" placeholder='remark'></textarea> <br/>
-        <textarea name="" id="" cols="60" rows="10" placeholder='snippet'></textarea> <br/>
+        <textarea name="" id="" cols="60" rows="10" placeholder='snippet' value={this.state.snippet}></textarea> <br/>
         <button>Submit</button>
       </div>
 
